@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏯</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Infinity Castle - An immersive 3D experience exploring the dimensional fortress from Demon Slayer: Kimetsu no Yaiba" />
+    <meta name="keywords" content="Demon Slayer, Infinity Castle, Muzan, Upper Moons, 3D, WebGL, Three.js" />
+    <title>無限城 | Infinity Castle - Demon Slayer</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html, body, #root {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0a0403;
+        font-family: 'Cinzel', serif;
+      }
+      
+      /* Custom scrollbar - fiery */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1a0805;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ff4400;
+        border-radius: 2px;
+      }
+      
+      /* Loading animation - fiery theme */
+      .loader {
+        width: 70px;
+        height: 70px;
+        border: 3px solid transparent;
+        border-top-color: #ff4400;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        position: relative;
+      }
+      .loader::before {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        right: 5px;
+        bottom: 5px;
+        border: 3px solid transparent;
+        border-top-color: #ff6622;
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite reverse;
+      }
+      .loader::after {
+        content: '';
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        border: 3px solid transparent;
+        border-top-color: #ffaa44;
+        border-radius: 50%;
+        animation: spin 2s linear infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      /* Pulse animation for demon eyes */
+      @keyframes pulse-glow {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+      }
+      
+      /* Japanese text styling */
+      .jp-text {
+        font-family: 'Noto Serif JP', serif;
+      }
+      
+      /* Selection color */
+      ::selection {
+        background: #ff440050;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
