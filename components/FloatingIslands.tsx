@@ -1,6 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useStore } from '../store';
 import '../types';
 
 // BIGGER Japanese room - closer to center
@@ -108,14 +109,18 @@ const GiantPillar: React.FC<{ position: [number, number, number]; height?: numbe
 
 // Main environment - CLOSER and BIGGER
 export const FloatingIslands: React.FC = () => {
+  const isMobile = useStore((state) => state.isMobile);
+  
   const rooms = useMemo(() => {
     const r: { pos: [number, number, number]; rot: number; scale: number }[] = [];
     
-    // Reduced room count - every other depth level
-    for (let depth = -12; depth > -160; depth -= 50) {
-      const count = 3; // Reduced from 4
-      for (let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2 + (depth * 0.04);
+    // Reduced room count - even less on mobile
+    const depthStep = isMobile ? 75 : 50;
+    const roomCount = isMobile ? 2 : 3;
+    
+    for (let depth = -12; depth > -160; depth -= depthStep) {
+      for (let i = 0; i < roomCount; i++) {
+        const angle = (i / roomCount) * Math.PI * 2 + (depth * 0.04);
         const radius = 40 + (i % 2) * 12;
         r.push({
           pos: [Math.cos(angle) * radius, depth + (Math.random() - 0.5) * 3, Math.sin(angle) * radius],
@@ -125,14 +130,16 @@ export const FloatingIslands: React.FC = () => {
       }
     }
     return r;
-  }, []);
+  }, [isMobile]);
 
   const bridges = useMemo(() => {
     const b: { pos: [number, number, number]; rot: number; len: number }[] = [];
     
-    // Reduced bridge count
+    // Reduced bridge count - skip on mobile
+    if (isMobile) return b;
+    
     for (let depth = -12; depth > -150; depth -= 50) {
-      const count = 2; // Reduced from 3
+      const count = 2;
       for (let i = 0; i < count; i++) {
         const angle = (i / count) * Math.PI * 2 + (depth * 0.06);
         const radius = 35 + Math.random() * 8;
@@ -144,14 +151,16 @@ export const FloatingIslands: React.FC = () => {
       }
     }
     return b;
-  }, []);
+  }, [isMobile]);
 
   const pillars = useMemo(() => {
     const p: { pos: [number, number, number]; height: number }[] = [];
     
-    // Reduced pillar count
-    for (let i = 0; i < 8; i++) { // Reduced from 12
-      const angle = (i / 8) * Math.PI * 2;
+    // Reduced pillar count - less on mobile
+    const pillarCount = isMobile ? 4 : 8;
+    
+    for (let i = 0; i < pillarCount; i++) {
+      const angle = (i / pillarCount) * Math.PI * 2;
       const radius = 50 + (i % 2) * 12;
       p.push({
         pos: [Math.cos(angle) * radius, -50, Math.sin(angle) * radius],
@@ -159,7 +168,7 @@ export const FloatingIslands: React.FC = () => {
       });
     }
     return p;
-  }, []);
+  }, [isMobile]);
 
   return (
     <group>
@@ -180,7 +189,8 @@ export const FloatingIslands: React.FC = () => {
 
 // Particles - optimized with frame skipping
 export const Particles: React.FC = () => {
-  const count = 20; // Reduced from 30
+  const isMobile = useStore((state) => state.isMobile);
+  const count = isMobile ? 10 : 20; // Even less on mobile
   const mesh = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const frameCount = useRef(0);
@@ -193,12 +203,13 @@ export const Particles: React.FC = () => {
       speed: 0.1 + Math.random() * 0.2,
       size: 0.1 + Math.random() * 0.15
     }));
-  }, []);
+  }, [count]);
 
   useFrame((state) => {
-    // Skip every other frame for particles
+    // Skip more frames on mobile
     frameCount.current++;
-    if (frameCount.current % 2 !== 0) return;
+    const skipFrames = isMobile ? 3 : 2;
+    if (frameCount.current % skipFrames !== 0) return;
     
     if (!mesh.current) return;
     const time = state.clock.getElapsedTime();

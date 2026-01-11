@@ -8,12 +8,17 @@ const MAX_SPEED = 1.2;
 const ANCHOR_DISTANCE = 4;
 const ANCHOR_STRENGTH = 0.1;
 
+// Mobile-specific settings
+const MOBILE_SCROLL_MULTIPLIER = 0.0008; // More sensitive for touch
+const DESKTOP_SCROLL_MULTIPLIER = 0.0004;
+
 export const PlayerController: React.FC = () => {
   const { camera } = useThree();
   const { 
     velocity, setVelocity, setDepth, 
     isAnchored, setAnchored, 
-    targetSection, jumpToSection, setCurrentSection 
+    targetSection, jumpToSection, setCurrentSection,
+    isMobile
   } = useStore();
   
   const velocityRef = useRef(velocity);
@@ -24,7 +29,7 @@ export const PlayerController: React.FC = () => {
   useEffect(() => { velocityRef.current = velocity; }, [velocity]);
   useEffect(() => { isAnchoredRef.current = isAnchored; }, [isAnchored]);
 
-  // Scroll handler - only on user scroll
+  // Scroll handler - optimized for both desktop and mobile
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -33,15 +38,63 @@ export const PlayerController: React.FC = () => {
         setAnchored(false);
       }
 
-      // Smaller scroll multiplier
-      const force = e.deltaY * 0.0004;
+      // Use different multiplier for mobile vs desktop
+      const scrollMultiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : DESKTOP_SCROLL_MULTIPLIER;
+      const force = e.deltaY * scrollMultiplier;
       velocityRef.current = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velocityRef.current - force));
       setVelocity(velocityRef.current);
     };
 
+    // Touch handling for mobile
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+      
+      if (isAnchoredRef.current) {
+        setAnchored(false);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStartY - touchY;
+      const deltaTime = Date.now() - touchStartTime;
+      
+      // Calculate velocity based on touch movement
+      const force = deltaY * 0.002;
+      velocityRef.current = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velocityRef.current - force));
+      setVelocity(velocityRef.current);
+      
+      touchStartY = touchY;
+      touchStartTime = Date.now();
+    };
+
+    const handleTouchEnd = () => {
+      // Apply momentum on touch end
+      velocityRef.current *= 0.95;
+    };
+
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [setVelocity, setAnchored]);
+    
+    if (isMobile) {
+      window.addEventListener('touchstart', handleTouchStart, { passive: false });
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+    
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      if (isMobile) {
+        window.removeEventListener('touchstart', handleTouchStart);
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+  }, [setVelocity, setAnchored, isMobile]);
 
   // Teleport handler
   useEffect(() => {

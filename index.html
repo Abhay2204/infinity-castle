@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏯</text></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="Infinity Castle - An immersive 3D experience exploring the dimensional fortress from Demon Slayer: Kimetsu no Yaiba" />
     <meta name="keywords" content="Demon Slayer, Infinity Castle, Muzan, Upper Moons, 3D, WebGL, Three.js" />
     <title>無限城 | Infinity Castle - Demon Slayer</title>
@@ -29,6 +29,8 @@
         overflow: hidden;
         background: #0a0403;
         font-family: 'Cinzel', serif;
+        touch-action: none; /* Prevent default touch behaviors */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
       }
       
       /* Custom scrollbar - fiery */

@@ -3,16 +3,19 @@ import { Canvas } from '@react-three/fiber';
 import { PlayerController } from './PlayerController';
 import { SectionManager } from './Sections';
 import { FloatingIslands, Particles, InfinityCore } from './FloatingIslands';
+import { useStore } from '../store';
 import '../types';
 
 export const Experience: React.FC = () => {
+  const isMobile = useStore((state) => state.isMobile);
+  
   return (
     <Canvas
       camera={{ position: [0, 0, 20], fov: 65, near: 0.1, far: 400 }}
-      dpr={[1, 1.5]}
+      dpr={isMobile ? [0.5, 1] : [1, 1.5]} // Lower resolution on mobile
       gl={{ 
         antialias: false,
-        powerPreference: 'high-performance',
+        powerPreference: isMobile ? 'default' : 'high-performance',
         stencil: false,
         depth: true,
         alpha: false

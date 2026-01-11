@@ -25,6 +25,7 @@ export const Interface: React.FC = () => {
   const jumpToSection = useStore((state) => state.jumpToSection);
   const showTexts = useStore((state) => state.showTexts);
   const toggleTexts = useStore((state) => state.toggleTexts);
+  const isMobile = useStore((state) => state.isMobile);
   const [showInfo, setShowInfo] = useState(false);
 
   const currentDepthDisplay = Math.abs(Math.round(depth * 10)) + "m";
@@ -40,30 +41,32 @@ export const Interface: React.FC = () => {
   }, [jumpToSection]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 text-white" style={{ fontFamily: 'Cinzel, serif' }}>
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 md:p-6 text-white" style={{ fontFamily: 'Cinzel, serif' }}>
       
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold tracking-widest" style={{ textShadow: '0 0 25px rgba(255,68,0,0.7)' }}>無限城</h1>
-          <p className="text-xs uppercase tracking-[0.3em] opacity-60 mt-1">INFINITY CASTLE</p>
+          <h1 className="text-xl md:text-2xl font-bold tracking-widest" style={{ textShadow: '0 0 25px rgba(255,68,0,0.7)' }}>無限城</h1>
+          <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] opacity-60 mt-1">INFINITY CASTLE</p>
         </div>
         <div className="text-right flex flex-col items-end gap-1">
-          <p className="text-xs uppercase tracking-[0.2em] opacity-60">Demon Slayer • 鬼滅の刃</p>
+          <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] opacity-60">Demon Slayer • 鬼滅の刃</p>
           <div className="flex gap-2 mt-1">
             <button 
               onClick={() => toggleTexts()}
-              className="pointer-events-auto text-xs border border-white/50 px-3 py-1 hover:bg-white/10 transition-colors rounded"
+              className="pointer-events-auto text-[10px] md:text-xs border border-white/50 px-2 md:px-3 py-1 hover:bg-white/10 transition-colors rounded"
               title={showTexts ? 'Hide section texts' : 'Show section texts'}
             >
               {showTexts ? '👁 HIDE' : '👁 SHOW'}
             </button>
-            <button 
-              onClick={() => setShowInfo(!showInfo)}
-              className="pointer-events-auto text-xs border border-white/50 px-3 py-1 hover:bg-white/10 transition-colors rounded"
-            >
-              {showInfo ? 'CLOSE' : 'INFO'}
-            </button>
+            {!isMobile && (
+              <button 
+                onClick={() => setShowInfo(!showInfo)}
+                className="pointer-events-auto text-[10px] md:text-xs border border-white/50 px-2 md:px-3 py-1 hover:bg-white/10 transition-colors rounded"
+              >
+                {showInfo ? 'CLOSE' : 'INFO'}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -89,37 +92,39 @@ export const Interface: React.FC = () => {
         </div>
       )}
 
-      {/* Navigation */}
-      <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
-        {SECTIONS.map((s) => (
-          <NavButton
-            key={s.id}
-            section={s}
-            isActive={activeSection.id === s.id}
-            onClick={() => handleJump(s.id)}
-          />
-        ))}
-      </div>
+      {/* Navigation - hidden on mobile */}
+      {!isMobile && (
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
+          {SECTIONS.map((s) => (
+            <NavButton
+              key={s.id}
+              section={s}
+              isActive={activeSection.id === s.id}
+              onClick={() => handleJump(s.id)}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Depth Meter */}
-      <div className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col items-center">
-        <div className="w-1 h-40 bg-white/20 rounded-full overflow-hidden relative">
+      <div className={`absolute ${isMobile ? 'left-3 top-1/2' : 'left-6 top-1/2'} -translate-y-1/2 flex flex-col items-center`}>
+        <div className={`${isMobile ? 'w-0.5 h-32' : 'w-1 h-40'} bg-white/20 rounded-full overflow-hidden relative`}>
           <div className="absolute bottom-0 w-full bg-gradient-to-t from-orange-600 to-orange-400 transition-all duration-200 rounded-full" style={{ height: `${progress}%` }} />
           {SECTIONS.map((s) => (
             <div key={s.id} className="absolute left-0 w-full h-[2px]" style={{ bottom: `${(Math.abs(s.depth) / 150) * 100}%`, backgroundColor: activeSection.id === s.id ? s.color : 'rgba(255,255,255,0.3)' }} />
           ))}
         </div>
-        <span className="text-lg font-mono font-bold mt-2" style={{ textShadow: '0 0 15px rgba(255,68,0,0.6)' }}>{currentDepthDisplay}</span>
+        <span className={`${isMobile ? 'text-sm' : 'text-lg'} font-mono font-bold mt-2`} style={{ textShadow: '0 0 15px rgba(255,68,0,0.6)' }}>{currentDepthDisplay}</span>
       </div>
 
       {/* Current Section */}
       <div className="w-full flex flex-col items-center gap-2">
         <div className="text-center">
-          <p className="text-2xl font-bold" style={{ color: activeSection.color, textShadow: `0 0 30px ${activeSection.color}70` }}>{activeSection.title}</p>
-          <p className="text-sm uppercase tracking-[0.3em] opacity-60 mt-1">{activeSection.subtitle}</p>
+          <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`} style={{ color: activeSection.color, textShadow: `0 0 30px ${activeSection.color}70` }}>{activeSection.title}</p>
+          <p className={`${isMobile ? 'text-xs' : 'text-sm'} uppercase tracking-[0.3em] opacity-60 mt-1`}>{activeSection.subtitle}</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-16 h-1 bg-white/20 rounded-full overflow-hidden">
+          <div className={`${isMobile ? 'w-12 h-0.5' : 'w-16 h-1'} bg-white/20 rounded-full overflow-hidden`}>
             <div className="h-full bg-orange-500 transition-all duration-100 rounded-full" style={{ width: `${Math.min(100, Math.abs(velocity) * 60)}%` }} />
           </div>
           <span className="text-[10px] uppercase tracking-wider opacity-50">{Math.abs(velocity) < 0.1 ? 'ANCHORED' : velocity < 0 ? 'DESCENDING' : 'ASCENDING'}</span>
