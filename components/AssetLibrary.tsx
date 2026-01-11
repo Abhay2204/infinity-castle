@@ -3,12 +3,13 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import '../types';
 
-// Simplified materials - cached
+// Simplified materials - cached and GPU optimized
 export const useMaterials = () => {
-  const woodMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#2a1810', roughness: 0.85 }), []);
-  const darkWoodMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1a0f0a', roughness: 0.9 }), []);
-  const paperMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#fff8e7', roughness: 0.95, side: THREE.DoubleSide }), []);
-  const bloodMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#8b0000', roughness: 0.5 }), []);
+  // Use MeshLambertMaterial for better GPU performance (simpler shading)
+  const woodMaterial = useMemo(() => new THREE.MeshLambertMaterial({ color: '#2a1810' }), []);
+  const darkWoodMaterial = useMemo(() => new THREE.MeshLambertMaterial({ color: '#1a0f0a' }), []);
+  const paperMaterial = useMemo(() => new THREE.MeshLambertMaterial({ color: '#fff8e7', side: THREE.DoubleSide }), []);
+  const bloodMaterial = useMemo(() => new THREE.MeshLambertMaterial({ color: '#8b0000' }), []);
   const demonMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1a0a1a', roughness: 0.4, metalness: 0.5 }), []);
   const goldMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#d4af37', roughness: 0.3, metalness: 0.8 }), []);
   const fireMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ff4400', transparent: true, opacity: 0.8 }), []);

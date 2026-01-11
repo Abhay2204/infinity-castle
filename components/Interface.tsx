@@ -41,7 +41,7 @@ export const Interface: React.FC = () => {
   }, [jumpToSection]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 md:p-6 text-white" style={{ fontFamily: 'Cinzel, serif' }}>
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 md:p-6 text-white" style={{ fontFamily: 'Cinzel, serif', transform: 'translateZ(0)', willChange: 'transform' }}>
       
       {/* Header */}
       <div className="flex justify-between items-start">

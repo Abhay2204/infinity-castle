@@ -31,6 +31,20 @@
         font-family: 'Cinzel', serif;
         touch-action: none; /* Prevent default touch behaviors */
         -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        /* GPU acceleration hints */
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        perspective: 1000px;
+        -webkit-perspective: 1000px;
+      }
+      
+      /* Force GPU rendering for canvas */
+      canvas {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        will-change: transform;
       }
       
       /* Custom scrollbar - fiery */
