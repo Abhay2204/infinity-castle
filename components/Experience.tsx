@@ -13,8 +13,12 @@ export const Experience: React.FC = () => {
       gl={{ 
         antialias: false,
         powerPreference: 'high-performance',
-        stencil: false
+        stencil: false,
+        depth: true,
+        alpha: false
       }}
+      performance={{ min: 0.5 }}
+      flat
     >
       {/* Dark warm background */}
       <color attach="background" args={['#080402']} />
@@ -29,13 +33,8 @@ export const Experience: React.FC = () => {
         {/* Main directional - warm orange from above */}
         <directionalLight position={[10, 20, 10]} intensity={0.5} color="#ff9966" />
         
-        {/* Orange glow from below */}
-        <pointLight position={[0, -30, 0]} intensity={50} color="#ff5500" distance={80} decay={2} />
-        <pointLight position={[0, -70, 0]} intensity={60} color="#ff4400" distance={100} decay={2} />
-        
-        {/* Side accent lights */}
-        <pointLight position={[30, -50, 30]} intensity={25} color="#ff6633" distance={60} decay={2} />
-        <pointLight position={[-30, -50, -30]} intensity={25} color="#ff6633" distance={60} decay={2} />
+        {/* Orange glow from below - consolidated */}
+        <pointLight position={[0, -50, 0]} intensity={80} color="#ff5500" distance={120} decay={2} />
         
         {/* Player Controller */}
         <PlayerController />

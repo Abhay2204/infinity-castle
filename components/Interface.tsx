@@ -1,9 +1,30 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, memo, useCallback } from 'react';
 import { useStore } from '../store';
 import { SECTIONS } from '../types';
 
+// Memoized navigation button
+const NavButton = memo(({ section, isActive, onClick }: { 
+  section: typeof SECTIONS[0]; 
+  isActive: boolean; 
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className={`group flex items-center gap-2 text-right transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-80'}`}
+  >
+    <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: isActive ? section.color : 'white' }}>
+      {section.subtitle.split(' ')[0]}
+    </span>
+    <div className="w-1 rounded transition-all duration-400" style={{ height: isActive ? '24px' : '12px', backgroundColor: isActive ? section.color : 'rgba(255,255,255,0.4)' }} />
+  </button>
+));
+
 export const Interface: React.FC = () => {
-  const { depth, velocity, jumpToSection, showTexts, toggleTexts } = useStore();
+  const depth = useStore((state) => state.depth);
+  const velocity = useStore((state) => state.velocity);
+  const jumpToSection = useStore((state) => state.jumpToSection);
+  const showTexts = useStore((state) => state.showTexts);
+  const toggleTexts = useStore((state) => state.toggleTexts);
   const [showInfo, setShowInfo] = useState(false);
 
   const currentDepthDisplay = Math.abs(Math.round(depth * 10)) + "m";
@@ -13,6 +34,10 @@ export const Interface: React.FC = () => {
   }, [depth]);
 
   const progress = Math.min(100, Math.max(0, (Math.abs(depth) / 150) * 100));
+  
+  const handleJump = useCallback((id: string) => {
+    jumpToSection(id as any);
+  }, [jumpToSection]);
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 text-white" style={{ fontFamily: 'Cinzel, serif' }}>
@@ -67,16 +92,12 @@ export const Interface: React.FC = () => {
       {/* Navigation */}
       <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
         {SECTIONS.map((s) => (
-          <button
+          <NavButton
             key={s.id}
-            onClick={() => jumpToSection(s.id)}
-            className={`group flex items-center gap-2 text-right transition-all duration-300 ${activeSection.id === s.id ? 'opacity-100' : 'opacity-40 hover:opacity-80'}`}
-          >
-            <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: activeSection.id === s.id ? s.color : 'white' }}>
-              {s.subtitle.split(' ')[0]}
-            </span>
-            <div className="w-1 rounded transition-all duration-400" style={{ height: activeSection.id === s.id ? '24px' : '12px', backgroundColor: activeSection.id === s.id ? s.color : 'rgba(255,255,255,0.4)' }} />
-          </button>
+            section={s}
+            isActive={activeSection.id === s.id}
+            onClick={() => handleJump(s.id)}
+          />
         ))}
       </div>
 

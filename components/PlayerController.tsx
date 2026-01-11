@@ -18,6 +18,8 @@ export const PlayerController: React.FC = () => {
   
   const velocityRef = useRef(velocity);
   const isAnchoredRef = useRef(isAnchored);
+  const lastDepthRef = useRef(0);
+  const lastVelocityRef = useRef(0);
   
   useEffect(() => { velocityRef.current = velocity; }, [velocity]);
   useEffect(() => { isAnchoredRef.current = isAnchored; }, [isAnchored]);
@@ -119,8 +121,18 @@ export const PlayerController: React.FC = () => {
         }
       }
       
-      setVelocity(velocityRef.current);
-      setDepth(camera.position.y);
+      // Throttle state updates - only update every few frames or on significant change
+      const depthChanged = Math.abs(camera.position.y - lastDepthRef.current) > 0.05;
+      const velocityChanged = Math.abs(velocityRef.current - lastVelocityRef.current) > 0.01;
+      
+      if (depthChanged) {
+        setDepth(camera.position.y);
+        lastDepthRef.current = camera.position.y;
+      }
+      if (velocityChanged) {
+        setVelocity(velocityRef.current);
+        lastVelocityRef.current = velocityRef.current;
+      }
     }
   });
 

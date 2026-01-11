@@ -64,12 +64,11 @@ const JapaneseRoom: React.FC<{ position: [number, number, number]; rotation?: nu
         <meshStandardMaterial color={paperColor} roughness={0.95} transparent opacity={0.8} />
       </mesh>
       
-      {/* Lantern inside */}
+      {/* Lantern inside - removed point light, using emissive instead */}
       <mesh position={[0, 6, 0]}>
         <boxGeometry args={[0.5, 1, 0.5]} />
-        <meshBasicMaterial color="#ff6622" />
+        <meshStandardMaterial color="#ff6622" emissive="#ff6622" emissiveIntensity={2} />
       </mesh>
-      <pointLight position={[0, 5.5, 0]} color="#ff6622" intensity={15} distance={12} decay={2} />
     </group>
   );
 };
@@ -112,17 +111,15 @@ export const FloatingIslands: React.FC = () => {
   const rooms = useMemo(() => {
     const r: { pos: [number, number, number]; rot: number; scale: number }[] = [];
     
-    // Rooms positioned to avoid section content areas (center is clear)
-    // Sections are at depths: 0, -25, -50, -75, -100, -125, -150
-    // Place rooms at offset depths and push them much further out
-    for (let depth = -12; depth > -160; depth -= 25) {
-      const count = 4;
+    // Reduced room count - every other depth level
+    for (let depth = -12; depth > -160; depth -= 50) {
+      const count = 3; // Reduced from 4
       for (let i = 0; i < count; i++) {
         const angle = (i / count) * Math.PI * 2 + (depth * 0.04);
-        const radius = 40 + (i % 2) * 12; // Pushed much further out
+        const radius = 40 + (i % 2) * 12;
         r.push({
           pos: [Math.cos(angle) * radius, depth + (Math.random() - 0.5) * 3, Math.sin(angle) * radius],
-          rot: angle + Math.PI, // Face center
+          rot: angle + Math.PI,
           scale: 0.8 + Math.random() * 0.2
         });
       }
@@ -133,12 +130,12 @@ export const FloatingIslands: React.FC = () => {
   const bridges = useMemo(() => {
     const b: { pos: [number, number, number]; rot: number; len: number }[] = [];
     
-    // Bridges at offset depths to avoid sections, pushed much further out
-    for (let depth = -12; depth > -150; depth -= 25) {
-      const count = 3;
+    // Reduced bridge count
+    for (let depth = -12; depth > -150; depth -= 50) {
+      const count = 2; // Reduced from 3
       for (let i = 0; i < count; i++) {
         const angle = (i / count) * Math.PI * 2 + (depth * 0.06);
-        const radius = 35 + Math.random() * 8; // Pushed much further out
+        const radius = 35 + Math.random() * 8;
         b.push({
           pos: [Math.cos(angle) * radius, depth, Math.sin(angle) * radius],
           rot: angle + Math.PI / 2,
@@ -152,10 +149,10 @@ export const FloatingIslands: React.FC = () => {
   const pillars = useMemo(() => {
     const p: { pos: [number, number, number]; height: number }[] = [];
     
-    // Pillars further out
-    for (let i = 0; i < 12; i++) {
-      const angle = (i / 12) * Math.PI * 2;
-      const radius = 50 + (i % 2) * 12; // Pushed much further out
+    // Reduced pillar count
+    for (let i = 0; i < 8; i++) { // Reduced from 12
+      const angle = (i / 8) * Math.PI * 2;
+      const radius = 50 + (i % 2) * 12;
       p.push({
         pos: [Math.cos(angle) * radius, -50, Math.sin(angle) * radius],
         height: 100 + Math.random() * 40
@@ -181,11 +178,12 @@ export const FloatingIslands: React.FC = () => {
   );
 };
 
-// Particles - reduced count
+// Particles - optimized with frame skipping
 export const Particles: React.FC = () => {
-  const count = 30;
+  const count = 20; // Reduced from 30
   const mesh = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  const frameCount = useRef(0);
   
   const particles = useMemo(() => {
     return new Array(count).fill(0).map(() => ({
@@ -198,6 +196,10 @@ export const Particles: React.FC = () => {
   }, []);
 
   useFrame((state) => {
+    // Skip every other frame for particles
+    frameCount.current++;
+    if (frameCount.current % 2 !== 0) return;
+    
     if (!mesh.current) return;
     const time = state.clock.getElapsedTime();
     const cameraY = state.camera.position.y;
@@ -224,12 +226,12 @@ export const Particles: React.FC = () => {
   );
 };
 
-// Glowing core
+// Glowing core - simplified
 export const InfinityCore: React.FC = () => {
   return (
     <group position={[0, -80, 0]}>
       <mesh>
-        <sphereGeometry args={[6, 16, 16]} />
+        <sphereGeometry args={[6, 8, 8]} />
         <meshBasicMaterial color="#ff4400" transparent opacity={0.4} />
       </mesh>
       <pointLight color="#ff4400" intensity={100} distance={120} decay={2} />

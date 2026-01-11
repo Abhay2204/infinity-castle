@@ -16,26 +16,33 @@ export const useMaterials = () => {
   return { woodMaterial, darkWoodMaterial, paperMaterial, bloodMaterial, demonMaterial, goldMaterial, fireMaterial };
 };
 
-// Simple lantern - minimal geometry
+// Simple lantern - using emissive instead of point light for distant lanterns
 export const Lantern: React.FC<{ position: [number, number, number]; color?: string; intensity?: number }> = ({ 
   position, color = '#ffaa00', intensity = 15 
 }) => {
+  // Only add point light for high intensity lanterns (important ones)
+  const usePointLight = intensity > 20;
+  
   return (
     <group position={position}>
       <mesh>
         <boxGeometry args={[0.25, 0.5, 0.25]} />
-        <meshBasicMaterial color={color} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={usePointLight ? 1 : 2} />
       </mesh>
-      <pointLight color={color} intensity={intensity} distance={8} decay={2} />
+      {usePointLight && <pointLight color={color} intensity={intensity} distance={8} decay={2} />}
     </group>
   );
 };
 
-// Simple demon eye
+// Simple demon eye - with frame skipping
 export const DemonEye: React.FC<{ position: [number, number, number]; scale?: number }> = ({ position, scale = 1 }) => {
   const eyeRef = useRef<THREE.Group>(null);
+  const frameCount = useRef(0);
   
   useFrame(({ clock }) => {
+    frameCount.current++;
+    if (frameCount.current % 3 !== 0) return; // Skip 2 out of 3 frames
+    
     if (eyeRef.current) {
       eyeRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.5) * 0.2;
     }
@@ -44,14 +51,13 @@ export const DemonEye: React.FC<{ position: [number, number, number]; scale?: nu
   return (
     <group ref={eyeRef} position={position} scale={scale}>
       <mesh>
-        <sphereGeometry args={[0.4, 12, 12]} />
+        <sphereGeometry args={[0.4, 8, 8]} />
         <meshStandardMaterial color="#200000" />
       </mesh>
       <mesh position={[0, 0, 0.3]}>
-        <sphereGeometry args={[0.2, 8, 8]} />
-        <meshBasicMaterial color="#ff0000" />
+        <sphereGeometry args={[0.2, 6, 6]} />
+        <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={2} />
       </mesh>
-      <pointLight color="#ff0000" intensity={3} distance={3} decay={2} />
     </group>
   );
 };
